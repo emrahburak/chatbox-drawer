@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    /* Temel derleme ayarları */
+    "target": "ESNext",
+    "module": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+
+    /* Modül çözümleme */
+"moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+
+    /* React */
+    "jsx": "react-jsx",
+
+    /* Node desteği */
+    "types": ["node"],
+
+    /* Güvenlik ve performans */
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true
+  },
+  "include": ["src", "vite.config.ts"],
+  "exclude": ["node_modules", "dist"]
+}
+
+
+
+
