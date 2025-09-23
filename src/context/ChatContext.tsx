@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
+import { sendMessageToProvider,Provider } from "../transports/transporterLayer";
 
 interface Message {
   id: string;
@@ -12,6 +13,7 @@ interface ChatContextProps {
   error: string | null;
   isOpen: boolean;
   sendMessage: (text: string) => Promise<void>;
+  sendMockMessage?: (text: string) => Promise<void>;
   toggleDrawer: () => void;
 }
 
@@ -19,17 +21,19 @@ const ChatContext = createContext<ChatContextProps | undefined>(undefined);
 
 interface ChatProviderProps {
   children: ReactNode;
-  apiKey: string;
-  endpoint: string;
 }
 
-export const ChatProvider: React.FC<ChatProviderProps> = ({ children, apiKey, endpoint }) => {
+export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleDrawer = () => setIsOpen((prev) => !prev);
+
+  // .env üzerinden sabit provider ve apiKey alınıyor
+  const provider = import.meta.env.VITE_PROVIDER as Provider;
+  const apiKey = import.meta.env.VITE_AI_API_KEY;
 
   const sendMessage = async (text: string) => {
     const userMessage: Message = { id: Date.now().toString(), text, sender: "user" };
@@ -38,19 +42,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, apiKey, en
     setError(null);
 
     try {
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({ message: text }),
-      });
-      const data = await res.json();
+      const reply = await sendMessageToProvider(provider, apiKey, text);
 
       const botMessage: Message = {
         id: Date.now().toString() + "-bot",
-        text: data.reply ?? "No response",
+        text: reply,
         sender: "bot",
       };
       setMessages((prev) => [...prev, botMessage]);
@@ -61,8 +57,27 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, apiKey, en
     }
   };
 
+  const sendMockMessage = async (text: string) => {
+    const userMessage: Message = { id: crypto.randomUUID(), text, sender: "user" };
+    setMessages((prev) => [...prev, userMessage]);
+    setIsLoading(true);
+    setError(null);
+
+    setTimeout(() => {
+      const botMessage: Message = {
+        id: crypto.randomUUID(),
+        text: "Mock cevap: " + text.split("").reverse().join(""),
+        sender: "bot",
+      };
+      setMessages((prev) => [...prev, botMessage]);
+      setIsLoading(false);
+    }, 500);
+  };
+
   return (
-    <ChatContext.Provider value={{ messages, isLoading, error, isOpen, sendMessage, toggleDrawer }}>
+    <ChatContext.Provider
+      value={{ messages, isLoading, error, isOpen, sendMessage, toggleDrawer, sendMockMessage }}
+    >
       {children}
     </ChatContext.Provider>
   );
@@ -71,9 +86,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children, apiKey, en
 // Hook kullanımı
 export const useChat = (): ChatContextProps => {
   const context = useContext(ChatContext);
-  if (!context) {
-    throw new Error("useChat must be used within a ChatProvider");
-  }
+  if (!context) throw new Error("useChat must be used within a ChatProvider");
   return context;
 };
 
