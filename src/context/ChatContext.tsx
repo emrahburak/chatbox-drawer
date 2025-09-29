@@ -1,10 +1,15 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { sendMessageToProvider,Provider } from "../transports/transporterLayer";
+import { sendMessageToProvider, Provider } from "../transports/transporterLayer";
+
+
+
 
 interface Message {
   id: string;
   text: string;
   sender: "user" | "bot";
+  timestamp: Date; // <-- yeni alan
+
 }
 
 interface ChatContextProps {
@@ -28,6 +33,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [sessionId] = useState(() => crypto.randomUUID());
+
+
+
 
   const toggleDrawer = () => setIsOpen((prev) => !prev);
 
@@ -35,19 +44,22 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const provider = import.meta.env.VITE_PROVIDER as Provider;
   const apiKey = import.meta.env.VITE_AI_API_KEY;
 
+
   const sendMessage = async (text: string) => {
-    const userMessage: Message = { id: Date.now().toString(), text, sender: "user" };
+    const now = new Date();
+    const userMessage: Message = { id: now.getTime().toString(), text, sender: "user", timestamp: now };
     setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
     setError(null);
 
     try {
-      const reply = await sendMessageToProvider(provider, apiKey, text);
+      const reply = await sendMessageToProvider(provider, apiKey, text, { sessionId });
 
       const botMessage: Message = {
-        id: Date.now().toString() + "-bot",
+        id: (Date.now() + 1).toString() + "-bot", // benzersiz id
         text: reply,
         sender: "bot",
+        timestamp: new Date(), // bot mesajı zaman damgası
       };
       setMessages((prev) => [...prev, botMessage]);
     } catch (err: any) {
@@ -57,26 +69,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     }
   };
 
-  const sendMockMessage = async (text: string) => {
-    const userMessage: Message = { id: crypto.randomUUID(), text, sender: "user" };
-    setMessages((prev) => [...prev, userMessage]);
-    setIsLoading(true);
-    setError(null);
-
-    setTimeout(() => {
-      const botMessage: Message = {
-        id: crypto.randomUUID(),
-        text: "Mock cevap: " + text.split("").reverse().join(""),
-        sender: "bot",
-      };
-      setMessages((prev) => [...prev, botMessage]);
-      setIsLoading(false);
-    }, 500);
-  };
 
   return (
     <ChatContext.Provider
-      value={{ messages, isLoading, error, isOpen, sendMessage, toggleDrawer, sendMockMessage }}
+      value={{ messages, isLoading, error, isOpen, sendMessage, toggleDrawer }}
     >
       {children}
     </ChatContext.Provider>

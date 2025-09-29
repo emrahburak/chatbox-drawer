@@ -1,4 +1,31 @@
-export type Provider = "gemini" | "openai" | "claude" | "deepseek" | "ollama";
+export type Provider =
+  | "gemini"
+  | "openai"
+  | "claude"
+  | "deepseek"
+  | "ollama"
+  | "webhook";
+
+export async function sendToWebhook(
+  url: string,
+  payload: Record<string, any>,
+): Promise<string> {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Webhook call failed: ${res.status} ${res.statusText}`);
+  }
+
+  const data = await res.json().catch(() => ({}));
+  // data içinden output varsa onu döndür, yoksa raw string
+  return data.output ?? JSON.stringify(data) ?? "No response";
+}
 
 export async function sendToGemini(
   apiKey: string,
@@ -42,15 +69,25 @@ export async function sendToOpenAI(
 
 export async function sendMessageToProvider(
   provider: Provider,
-  apiKey: string,
+  keyOrUrl: string,
   text: string,
+  payload?: Record<string, any>,
 ): Promise<string> {
   switch (provider) {
     case "gemini":
-      return sendToGemini(apiKey, text);
+      console.log("openai çalışıyor");
+      return await sendToGemini(keyOrUrl, text);
     case "openai":
-      return sendToOpenAI(apiKey, text);
-    // ileride claude, deepseek, ollama eklenir
+      console.log("openai çalışıyor");
+      return await sendToOpenAI(keyOrUrl, text);
+    case "webhook":
+      // .env’den URL al
+      const url = import.meta.env.VITE_BASE_URL_AI;
+      if (!url) {
+        throw new Error("VITE_BASE_URL_AI is not defined");
+      }
+      return await sendToWebhook(url, { text, ...payload });
+
     default:
       throw new Error(`Unsupported provider: ${provider}`);
   }
