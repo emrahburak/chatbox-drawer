@@ -15,7 +15,7 @@ const myCustomTheme: ThemeType = {
 
 function App() {
   return (
-    <AppProvider initialTheme={myCustomTheme} uiConfig={{ loadingText: "Yükleniyor",locale:"tr-Tr" }}>
+    <AppProvider initialTheme={myCustomTheme} uiConfig={{ loadingText: "Yükleniyor", locale: "tr-Tr" }}>
       <ChatAppWrapper />
     </AppProvider>
   );
@@ -25,7 +25,11 @@ function ChatAppWrapper() {
   return (
     <div style={{ padding: "2rem" }}>
       <h1>ChatDrawer Test</h1>
-      <ChatDrawer position="right" />
+      <ChatDrawer
+        position="right"
+        initialMessage="Merhaba! Sana nasıl yardımcı olabilirim?"
+        showInitialMessage={true}
+      />
     </div>
   );
 }

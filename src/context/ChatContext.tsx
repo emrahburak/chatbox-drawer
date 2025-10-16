@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { sendMessageToProvider, Provider } from "../transports/transporterLayer";
 
 
@@ -18,8 +18,9 @@ interface ChatContextProps {
   error: string | null;
   isOpen: boolean;
   sendMessage: (text: string) => Promise<void>;
-  sendMockMessage?: (text: string) => Promise<void>;
   toggleDrawer: () => void;
+  addMessage: (msg: Message) => void;
+
 }
 
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
@@ -35,14 +36,20 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [sessionId] = useState(() => crypto.randomUUID());
 
-
-
-
   const toggleDrawer = () => setIsOpen((prev) => !prev);
+
+  // İlk mesaj yüklemesi
+  const addMessage = (msg: Message) => {
+    setMessages((prev) => [...prev, msg]);
+  };
+
 
   // .env üzerinden sabit provider ve apiKey alınıyor
   const provider = import.meta.env.VITE_PROVIDER as Provider;
   const apiKey = import.meta.env.VITE_AI_API_KEY;
+
+
+
 
 
   const sendMessage = async (text: string) => {
@@ -72,11 +79,20 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
   return (
     <ChatContext.Provider
-      value={{ messages, isLoading, error, isOpen, sendMessage, toggleDrawer }}
+      value={{
+        messages,
+        isLoading,
+        error,
+        isOpen,
+        sendMessage,
+        toggleDrawer,
+        addMessage
+      }}
     >
       {children}
     </ChatContext.Provider>
   );
+
 };
 
 // Hook kullanımı

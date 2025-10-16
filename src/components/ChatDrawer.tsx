@@ -13,15 +13,17 @@ import MessageBubble from "./MessageBubble";
 interface ChatDrawerProps {
   config?: ChatDrawerConfig;
   position?: "left" | "right" | "top" | "bottom";
+  initialMessage?: string;
+  showInitialMessage?: boolean;
 }
 
-export const ChatDrawer: React.FC<ChatDrawerProps> = ({ config, position = "right" }) => {
+
+export const ChatDrawer: React.FC<ChatDrawerProps> = ({ config, position = "right", initialMessage, showInitialMessage = true }) => {
   const drawerConfig = config || useDrawerPosition(position); // pozisyon, width, height, toggleButton
-  const { isOpen, toggleDrawer, messages, sendMessage, isLoading, error } = useChat();
+  const { isOpen, toggleDrawer, messages, sendMessage, isLoading, error, addMessage } = useChat();
   const { theme } = useTheme(); // theme artık context üzerinden alınıyor
   const [input, setInput] = useState("");
   const { loadingText, errorText } = useUIConfig();
-
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto scroll
@@ -32,6 +34,20 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ config, position = "righ
   useEffect(() => {
     if (drawerConfig.behavior.autoOpen) toggleDrawer();
   }, []);
+
+
+  // Sole-source initial message injection
+  useEffect(() => {
+    if (!initialMessage || !showInitialMessage) return;
+    if (isOpen && messages.length === 0) {
+      addMessage({
+        id: `init-${Date.now()}`,
+        text: initialMessage,
+        sender: "bot",
+        timestamp: new Date(),
+      });
+    }
+  }, [isOpen, initialMessage, showInitialMessage, messages.length, addMessage]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -95,6 +111,7 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ config, position = "righ
             alignItems: "center",
             justifyContent: "center",
             padding: "0.2rem",
+            cursor: "pointer"
           }}
           onClick={toggleDrawer}
         >
