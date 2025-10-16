@@ -29,6 +29,8 @@ function ChatAppWrapper() {
         position="right"
         initialMessage="Merhaba! Sana nasıl yardımcı olabilirim?"
         showInitialMessage={true}
+        title="otto-chat-bot"
+        titleDescription="Açıklama alanı "
       />
     </div>
   );
