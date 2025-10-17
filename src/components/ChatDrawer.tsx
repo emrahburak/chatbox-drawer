@@ -9,16 +9,19 @@ import { useTheme } from "../context/ThemeContext";
 import { BsRobot } from "react-icons/bs";
 import ChatInput from "./ChatInput";
 import MessageBubble from "./MessageBubble";
+import { ChatHeader } from "./ChatHeader";
 
 interface ChatDrawerProps {
   config?: ChatDrawerConfig;
   position?: "left" | "right" | "top" | "bottom";
   initialMessage?: string;
   showInitialMessage?: boolean;
+  title?: string;
+  titleDescription?: string;
 }
 
 
-export const ChatDrawer: React.FC<ChatDrawerProps> = ({ config, position = "right", initialMessage, showInitialMessage = true }) => {
+export const ChatDrawer: React.FC<ChatDrawerProps> = ({ config, position = "right", initialMessage, showInitialMessage = true, title, titleDescription }) => {
   const drawerConfig = config || useDrawerPosition(position); // pozisyon, width, height, toggleButton
   const { isOpen, toggleDrawer, messages, sendMessage, isLoading, error, addMessage } = useChat();
   const { theme } = useTheme(); // theme artık context üzerinden alınıyor
@@ -119,6 +122,9 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ config, position = "righ
         </button>
 
         {/* Chat messages */}
+
+        <ChatHeader title={title} titleDescription={titleDescription} onClose={toggleDrawer} />
+
         <div style={{ flex: 1, overflowY: "auto", padding: "1rem" }}>
           {messages.map((msg) => (
             <MessageBubble
