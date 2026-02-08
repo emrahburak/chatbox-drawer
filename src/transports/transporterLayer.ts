@@ -41,6 +41,16 @@ export async function sendToGemini(
       }),
     },
   );
+
+  if (!res.ok) {
+    const errorBody = await res.text().catch(() => "");
+    throw new Error(
+      `Gemini call failed: ${res.status} ${res.statusText}${
+        errorBody ? ` - ${errorBody}` : ""
+      }`,
+    );
+  }
+
   const data = await res.json();
   return data.candidates?.[0]?.content?.parts?.[0]?.text ?? "No response";
 }
@@ -60,6 +70,16 @@ export async function sendToOpenAI(
       messages: [{ role: "user", content: text }],
     }),
   });
+
+  if (!res.ok) {
+    const errorBody = await res.text().catch(() => "");
+    throw new Error(
+      `OpenAI call failed: ${res.status} ${res.statusText}${
+        errorBody ? ` - ${errorBody}` : ""
+      }`,
+    );
+  }
+
   const data = await res.json();
   return data.choices?.[0]?.message?.content ?? "No response";
 }
@@ -72,7 +92,7 @@ export async function sendMessageToProvider(
 ): Promise<string> {
   switch (provider) {
     case "gemini":
-      console.log("openai çalışıyor");
+      console.log("gemini çalışıyor");
       return await sendToGemini(keyOrUrl, text);
     case "openai":
       console.log("openai çalışıyor");
