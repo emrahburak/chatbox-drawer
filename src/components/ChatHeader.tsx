@@ -21,7 +21,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ title, titleDescription,
         justifyContent: "space-between",
         padding: "1rem",
         borderBottom: "1px solid rgba(0,0,0,0.1)",
-        backgroundColor: theme.headerBg || (isDark ? "#1f2937" : "#f9f9f9"),
+        backgroundColor: theme.headerBg ?? (isDark ? "#1f2937" : "#f9f9f9"),
       }}
     >
       <div>

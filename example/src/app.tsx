@@ -9,8 +9,8 @@ const myCustomLightTheme: ThemeType = {
   userColor: "#FFFFFF",      // beyaz
   botBg: "#5B9A42",          // yeşil
   botColor: "#EFC429",       // sarı
-  drawerBg: "#f0f0ec",      // açık arka plan
-  headerBg: "#ffffff",       // header beyaz
+  drawerBg: "#e6f4ff",      // açık mavi drawer arka plan
+  headerBg: "#cfe8ff",       // daha koyu mavi header
   fontFamily: "Inter, sans-serif",
   borderRadius: "14px",
 };
@@ -20,8 +20,8 @@ const myCustomDarkTheme: ThemeType = {
   userColor: "#fff",         // beyaz
   botBg: "#303030",          // koyu gri
   botColor: "#EAEAEA",       // açık gri
-  drawerBg: "#181818",       // koyu arka plan
-  headerBg: "#303030",       // koyu header
+  drawerBg: "#121a24",       // koyu lacivert drawer arka plan
+  headerBg: "#1f2b3a",       // koyu lacivert header
   fontFamily: "Inter, sans-serif",
   borderRadius: "14px",
 };
@@ -72,6 +72,7 @@ function ChatAppWrapper() {
   return (
     <div style={{ padding: "2rem" }}>
       <h1>ChatDrawer Test</h1>
+      <p>Özel tema örneği: drawer arka planı açık mavi, header ise biraz daha koyu mavi renkte.</p>
       <ChatDrawer
         config={strictModeAutoOpenConfig}
         initialMessage="Merhaba! Sana nasıl yardımcı olabilirim?"
