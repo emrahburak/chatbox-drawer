@@ -82,7 +82,7 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ config, position = "righ
           position: "relative",
           width: pos === "left" || pos === "right" ? width : "100%",
           height: pos === "top" || pos === "bottom" ? height : "100%",
-          backgroundColor: "#fff",
+          backgroundColor: theme.drawerBg ?? "#fff",
           boxShadow: "0 0 10px rgba(0,0,0,0.3)",
           display: "flex",
           flexDirection: "column",
@@ -146,4 +146,3 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ config, position = "righ
     </div>
   );
 };
-
