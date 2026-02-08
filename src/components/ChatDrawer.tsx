@@ -23,7 +23,7 @@ interface ChatDrawerProps {
 
 export const ChatDrawer: React.FC<ChatDrawerProps> = ({ config, position = "right", initialMessage, showInitialMessage = true, title, titleDescription }) => {
   const drawerConfig = config || useDrawerPosition(position); // pozisyon, width, height, toggleButton
-  const { isOpen, toggleDrawer, messages, sendMessage, isLoading, error, addMessage } = useChat();
+  const { isOpen, toggleDrawer, openDrawer, messages, sendMessage, isLoading, error, addMessage } = useChat();
   const { theme } = useTheme(); // theme artık context üzerinden alınıyor
   const [input, setInput] = useState("");
   const { loadingText, errorText } = useUIConfig();
@@ -35,8 +35,8 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ config, position = "righ
   }, [messages, isLoading]);
 
   useEffect(() => {
-    if (drawerConfig.behavior.autoOpen) toggleDrawer();
-  }, []);
+    if (drawerConfig.behavior.autoOpen) openDrawer();
+  }, [drawerConfig.behavior.autoOpen, openDrawer]);
 
 
   // Sole-source initial message injection

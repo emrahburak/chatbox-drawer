@@ -1,15 +1,11 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import React, { createContext, useContext, useState, ReactNode } from "react";
 import { sendMessageToProvider, Provider } from "../transports/transporterLayer";
-
-
-
 
 interface Message {
   id: string;
   text: string;
   sender: "user" | "bot";
-  timestamp: Date; // <-- yeni alan
-
+  timestamp: Date;
 }
 
 interface ChatContextProps {
@@ -19,8 +15,8 @@ interface ChatContextProps {
   isOpen: boolean;
   sendMessage: (text: string) => Promise<void>;
   toggleDrawer: () => void;
+  openDrawer: () => void;
   addMessage: (msg: Message) => void;
-
 }
 
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
@@ -37,20 +33,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [sessionId] = useState(() => crypto.randomUUID());
 
   const toggleDrawer = () => setIsOpen((prev) => !prev);
+  const openDrawer = () => setIsOpen(true);
 
-  // İlk mesaj yüklemesi
   const addMessage = (msg: Message) => {
     setMessages((prev) => [...prev, msg]);
   };
 
-
-  // .env üzerinden sabit provider ve apiKey alınıyor
   const provider = import.meta.env.VITE_PROVIDER as Provider;
   const apiKey = import.meta.env.VITE_AI_API_KEY;
-
-
-
-
 
   const sendMessage = async (text: string) => {
     const now = new Date();
@@ -63,10 +53,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       const reply = await sendMessageToProvider(provider, apiKey, text, { sessionId });
 
       const botMessage: Message = {
-        id: (Date.now() + 1).toString() + "-bot", // benzersiz id
+        id: `${Date.now() + 1}-bot`,
         text: reply,
         sender: "bot",
-        timestamp: new Date(), // bot mesajı zaman damgası
+        timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botMessage]);
     } catch (err: any) {
@@ -75,7 +65,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       setIsLoading(false);
     }
   };
-
 
   return (
     <ChatContext.Provider
@@ -86,19 +75,17 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         isOpen,
         sendMessage,
         toggleDrawer,
-        addMessage
+        openDrawer,
+        addMessage,
       }}
     >
       {children}
     </ChatContext.Provider>
   );
-
 };
 
-// Hook kullanımı
 export const useChat = (): ChatContextProps => {
   const context = useContext(ChatContext);
   if (!context) throw new Error("useChat must be used within a ChatProvider");
   return context;
 };
-
