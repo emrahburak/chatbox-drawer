@@ -1,9 +1,6 @@
 export type Provider =
   | "gemini"
   | "openai"
-  | "claude"
-  | "deepseek"
-  | "ollama"
   | "webhook";
 
 export async function sendToWebhook(
