@@ -18,6 +18,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 }) => {
   const { theme } = useTheme();
   const formatTimestamp = useFormatTimestamp();
+  const isDark = theme.mode === "dark";
 
   const getSenderIcon = (sender: "user" | "bot") => {
     switch (sender) {
@@ -62,7 +63,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             <div
               style={{
                 fontSize: "0.75rem",
-                color: "#888",
+                color: isDark ? "#9ca3af" : "#888",
                 marginTop: "2px",
                 textAlign: "right", // opsiyonel: user sağ, bot sol
               }}

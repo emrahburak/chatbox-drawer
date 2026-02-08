@@ -11,6 +11,8 @@ interface ChatHeaderProps {
 
 export const ChatHeader: React.FC<ChatHeaderProps> = ({ title, titleDescription, onClose }) => {
   const { theme } = useTheme();
+  const isDark = theme.mode === "dark";
+
   return (
     <div
       style={{
@@ -19,13 +21,13 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ title, titleDescription,
         justifyContent: "space-between",
         padding: "1rem",
         borderBottom: "1px solid rgba(0,0,0,0.1)",
-        backgroundColor: "#f9f9f9",
+        backgroundColor: theme.headerBg || (isDark ? "#1f2937" : "#f9f9f9"),
       }}
     >
       <div>
-        {title && <h2 style={{ margin: 0, fontSize: "1.2rem", fontFamily: theme.fontFamily }}>{title}</h2>}
+        {title && <h2 style={{ margin: 0, fontSize: "1.2rem", fontFamily: theme.fontFamily, color: isDark ? "#f3f4f6" : "#111827" }}>{title}</h2>}
         {titleDescription && (
-          <p style={{ margin: 0, fontSize: "0.9rem", color: "#555", fontFamily: theme.fontFamily }}>{titleDescription}</p>
+          <p style={{ margin: 0, fontSize: "0.9rem", color: isDark ? "#d1d5db" : "#555", fontFamily: theme.fontFamily }}>{titleDescription}</p>
         )}
       </div>
 

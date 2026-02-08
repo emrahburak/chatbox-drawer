@@ -7,6 +7,7 @@ export interface UIConfig {
 }
 
 export interface ThemeType {
+  mode?: "light" | "dark";
   userBg?: string;
   userColor?: string;
   botBg?: string;

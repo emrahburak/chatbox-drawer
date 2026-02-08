@@ -11,7 +11,7 @@ interface ThemeContextProps {
 const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: ReactNode; initialTheme?: ThemeType }> = ({ children, initialTheme }) => {
-  const [theme, setThemeState] = useState<ThemeType>(initialTheme || {});
+  const [theme, setThemeState] = useState<ThemeType>({ mode: "light", ...(initialTheme || {}) });
 
   const setTheme = (newTheme: Partial<ThemeType>) => setThemeState(prev => ({ ...prev, ...newTheme }));
 
