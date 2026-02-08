@@ -30,7 +30,11 @@ function App() {
   const isDarkMode = false; // true olursa dark theme
 
   return (
-    <AppProvider initialTheme={isDarkMode ? myCustomDarkTheme : myCustomLightTheme} uiConfig={{ loadingText: "Yükleniyor", locale: "tr-Tr" }}>
+    <AppProvider
+      initialTheme={isDarkMode ? myCustomDarkTheme : myCustomLightTheme}
+      uiConfig={{ loadingText: "Yükleniyor", locale: "tr-Tr" }}
+      chatConfig={{ provider: "openai", apiKey: import.meta.env.VITE_AI_API_KEY }}
+    >
       <ChatAppWrapper />
     </AppProvider>
   );

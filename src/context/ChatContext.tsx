@@ -1,16 +1,14 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { sendMessageToProvider, Provider } from "../transports/transporterLayer";
-
-
-
+import React, { createContext, useContext, useState, ReactNode } from "react";
+import { sendMessageToProvider } from "../transports/transporterLayer";
+import type { ChatConfig } from "../types";
 
 interface Message {
   id: string;
   text: string;
   sender: "user" | "bot";
-  timestamp: Date; // <-- yeni alan
-
+  timestamp: Date;
 }
+
 
 interface ChatContextProps {
   messages: Message[];
@@ -20,16 +18,16 @@ interface ChatContextProps {
   sendMessage: (text: string) => Promise<void>;
   toggleDrawer: () => void;
   addMessage: (msg: Message) => void;
-
 }
 
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
 
 interface ChatProviderProps {
   children: ReactNode;
+  chatConfig: ChatConfig;
 }
 
-export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
+export const ChatProvider: React.FC<ChatProviderProps> = ({ children, chatConfig }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,19 +36,25 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
   const toggleDrawer = () => setIsOpen((prev) => !prev);
 
-  // İlk mesaj yüklemesi
   const addMessage = (msg: Message) => {
     setMessages((prev) => [...prev, msg]);
   };
 
+  const validateChatConfig = () => {
+    const { provider, apiKey, url } = chatConfig;
 
-  // .env üzerinden sabit provider ve apiKey alınıyor
-  const provider = import.meta.env.VITE_PROVIDER as Provider;
-  const apiKey = import.meta.env.VITE_AI_API_KEY;
+    if (!provider) {
+      throw new Error("Chat provider is required");
+    }
 
+    if ((provider === "openai" || provider === "gemini") && !apiKey) {
+      throw new Error(`${provider} requires an apiKey`);
+    }
 
-
-
+    if (provider === "webhook" && !url) {
+      throw new Error("webhook requires a url");
+    }
+  };
 
   const sendMessage = async (text: string) => {
     const now = new Date();
@@ -60,22 +64,26 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      const reply = await sendMessageToProvider(provider, apiKey, text, { sessionId });
+      validateChatConfig();
+
+      const { provider, apiKey, url } = chatConfig;
+      const credentials = provider === "webhook" ? url : apiKey;
+      const reply = await sendMessageToProvider(provider, credentials!, text, { sessionId });
 
       const botMessage: Message = {
-        id: (Date.now() + 1).toString() + "-bot", // benzersiz id
+        id: `${Date.now() + 1}-bot`,
         text: reply,
         sender: "bot",
-        timestamp: new Date(), // bot mesajı zaman damgası
+        timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botMessage]);
-    } catch (err: any) {
-      setError(err.message || "Error sending message");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Error sending message";
+      setError(message);
     } finally {
       setIsLoading(false);
     }
   };
-
 
   return (
     <ChatContext.Provider
@@ -86,19 +94,16 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         isOpen,
         sendMessage,
         toggleDrawer,
-        addMessage
+        addMessage,
       }}
     >
       {children}
     </ChatContext.Provider>
   );
-
 };
 
-// Hook kullanımı
 export const useChat = (): ChatContextProps => {
   const context = useContext(ChatContext);
   if (!context) throw new Error("useChat must be used within a ChatProvider");
   return context;
 };
-

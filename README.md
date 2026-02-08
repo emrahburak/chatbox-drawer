@@ -13,33 +13,41 @@ A simple and customizable **Chatbox Drawer** component built with React + TypeSc
 
 ## 🤖 AI provider configuration
 
-`ChatContext` reads provider settings from environment variables and sends messages through `sendMessageToProvider`.
+`AppProvider` / `ChatProvider` receives `chatConfig` via props and sends messages through `sendMessageToProvider`.
 
-Supported `VITE_PROVIDER` values:
+Supported provider values:
 
 - `gemini`
 - `openai`
 - `webhook`
 
-### Example: Gemini
+### AppProvider usage
 
-```env
-VITE_PROVIDER=gemini
-VITE_AI_API_KEY=your_gemini_api_key
+```tsx
+import { AppProvider, ChatDrawer } from "chatbox-drawer";
+
+export default function App() {
+  return (
+    <AppProvider
+      chatConfig={{ provider: "openai", apiKey: "your_openai_api_key" }}
+    >
+      <ChatDrawer />
+    </AppProvider>
+  );
+}
 ```
 
-### Example: OpenAI
+### Provider-specific config examples
 
-```env
-VITE_PROVIDER=openai
-VITE_AI_API_KEY=your_openai_api_key
-```
+```tsx
+// Gemini
+chatConfig={{ provider: "gemini", apiKey: "your_gemini_api_key" }}
 
-### Example: Webhook
+// OpenAI
+chatConfig={{ provider: "openai", apiKey: "your_openai_api_key" }}
 
-```env
-VITE_PROVIDER=webhook
-VITE_BASE_URL_AI=https://your-service.example.com/chat
+// Webhook
+chatConfig={{ provider: "webhook", url: "https://your-service.example.com/chat" }}
 ```
 
 > For `webhook`, the package sends a POST request with `{ text, ...payload }`.
@@ -58,5 +66,4 @@ npm install
 
 # start development server
 npm run dev
-
 ```
