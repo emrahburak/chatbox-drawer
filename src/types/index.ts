@@ -1,3 +1,5 @@
+import type { Provider } from "../transports/transporterLayer";
+
 export interface UIConfig {
   loadingText?: string;
   errorText?: string;
@@ -16,4 +18,10 @@ export interface ThemeType {
   headerBg?: string; // header arka planı
   fontFamily?: string;
   borderRadius?: string;
+}
+
+export interface ChatConfig {
+  provider: Provider;
+  apiKey?: string;
+  url?: string;
 }

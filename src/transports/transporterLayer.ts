@@ -78,12 +78,10 @@ export async function sendMessageToProvider(
       console.log("openai çalışıyor");
       return await sendToOpenAI(keyOrUrl, text);
     case "webhook":
-      // .env’den URL al
-      const url = import.meta.env.VITE_BASE_URL_AI;
-      if (!url) {
-        throw new Error("VITE_BASE_URL_AI is not defined");
+      if (!keyOrUrl) {
+        throw new Error("Webhook URL is not defined");
       }
-      return await sendToWebhook(url, { text, ...payload });
+      return await sendToWebhook(keyOrUrl, { text, ...payload });
 
     default:
       throw new Error(`Unsupported provider: ${provider}`);
